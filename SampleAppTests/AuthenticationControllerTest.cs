@@ -20,36 +20,44 @@ namespace SampleAppTests
         [Fact]
         public void LoginSuccess()
         {
-            SetupUsers();
             var result = ControllerForTest().Post(_users["good"]);
-            Assert.Equal(_users["good"], result);
+            Assert.Equal(_users["goodOut"], result);
         }
 
         [Fact]
         public void LoginFail()
         {
-            SetupUsers();
             var result = ControllerForTest().Post(_users["bad"]);
             Assert.Null(result);
         }
 
-        private void SetupUsers()
+        [Fact]
+        public void Get()
         {
-            _users = new Dictionary<string, User>
-            {
-                {"good", new User {UserName = "test", Password = "test"}},
-                {"bad", new User {UserName = "test", Password = "badpassword"}}
-            };
+            var result = ControllerForTest().Get();
+            Assert.IsType<string[]>(result);
+            Assert.Contains("Josh", result);
         }
 
         #endregion Test Cases
 
         #region Helpers
 
+        private void SetupUsers()
+        {
+            _users = new Dictionary<string, User>
+            {
+                {"good", new User {UserName = "test", Password = "test"}},
+                {"goodOut", new User {UserName = "test", Password = "test", Name = "Test User"}},
+                {"bad", new User {UserName = "test", Password = "badpassword"}},
+            };
+        }
+
         private AuthenticationController ControllerForTest()
         {
+            SetupUsers();
             var database = Substitute.For<IDatabaseShim>();
-            database.Login(_users["good"]).Returns(_users["good"]);
+            database.Login(_users["good"]).Returns(_users["goodOut"]);
             return new AuthenticationController(database);
         }
 
